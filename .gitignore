@@ -28,3 +28,6 @@ build/
 .env/
 conda/
 conda-*.log
+
+# Ignore network data (too big to store on GitHub)
+network-data/
