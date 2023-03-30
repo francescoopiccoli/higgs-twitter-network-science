@@ -1,0 +1,30 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+# Python byte code files
+*.pyc
+__pycache__/
+
+# Virtual environment files
+venv/
+env/
+
+# Python distribution / packaging files
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# PyCharm project files
+.idea/
+*.iml
+
+# Conda environment files
+.env/
+conda/
+conda-*.log
