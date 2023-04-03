@@ -26,3 +26,7 @@ def get_degree_distribution(G):
     for degree in degree_sequence:
         degree_count[degree] = degree_count.get(degree, 0) + 1
     return degree_count
+
+
+def load_activity_time(path, names=['SourceID', 'TargetID', 'Timestamp', 'Type']):
+    return pd.read_csv(path, sep='\s+', header=None, names=names)
