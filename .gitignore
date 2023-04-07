@@ -33,3 +33,4 @@ conda-*.log
 network-data/
 data/
 output/
+log/
