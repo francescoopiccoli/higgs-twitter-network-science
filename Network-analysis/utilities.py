@@ -37,7 +37,7 @@ def load_activity_time(path, names=['SourceID', 'TargetID', 'Timestamp', 'Type']
 
 
 # Get a subgraph of n nodes, where each node is connected to at least one node in the subgraph
-def get_subgraph(G, k=None, is_seed_node_most_connected=False):
+def get_subgraph(G, k=None, is_seed_node_most_connected=True):
     if k is None:
         k = G.number_of_nodes() // 5
     print('subgraph of: ' + str(k) + ' nodes')
@@ -63,7 +63,7 @@ def get_subgraph(G, k=None, is_seed_node_most_connected=False):
                     break
                 visited.add(neighbor)
                 subgraph.add_node(neighbor)
-                subgraph.add_edge(curr_node, neighbor)
+                subgraph.add_edge(curr_node, neighbor, day=G[curr_node][neighbor]["day"])
                 queue.append(neighbor)
     return subgraph
 
