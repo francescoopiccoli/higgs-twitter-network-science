@@ -37,22 +37,35 @@ def load_activity_time(path, names=['SourceID', 'TargetID', 'Timestamp', 'Type']
 
 
 # Get a subgraph of n nodes, where each node is connected to at least one node in the subgraph
-def get_subgraph(G, k, is_seed_node_most_connected=False):
+def get_subgraph(G, k=None, is_seed_node_most_connected=False):
+    if k is None:
+        k = G.number_of_nodes() // 5
+    print('subgraph of: ' + str(k) + ' nodes')
+
     if is_seed_node_most_connected:
-        seed_node = max(G.degree, key=lambda x: x[1])[0]
+        seed_node = max(G.degree(), key=lambda x: x[1])[0]
     else:
         seed_node = random.choice(list(G.nodes()))
-
-    subgraph = nx.ego_graph(G, seed_node)
-    # Keep adding nodes until the subgraph has n nodes
-    while len(subgraph) < k:
-        # Select a random node from the subgraph
-        node = random.choice(list(subgraph.nodes()))
-        # Add its neighbors that are not already in the subgraph
-        neighbors = [n for n in G.neighbors(node) if n not in subgraph]
-        subgraph.add_nodes_from(neighbors)
-
-    return G.subgraph(subgraph.nodes())
+    # Initialize a queue for BFS and a set for visited nodes
+    queue = [seed_node]
+    visited = set([seed_node])
+    # Initialize the subgraph with the starting node
+    subgraph = nx.Graph()
+    subgraph.add_node(seed_node)
+    # While the subgraph has fewer than n nodes and the queue is not empty
+    while len(subgraph) < k and queue:
+        # Get the next node from the queue
+        curr_node = queue.pop(0)
+        # Add its neighbors that have not been visited to the queue and the subgraph
+        for neighbor in G.neighbors(curr_node):
+            if neighbor not in visited:
+                if len(subgraph) >= k:
+                    break
+                visited.add(neighbor)
+                subgraph.add_node(neighbor)
+                subgraph.add_edge(curr_node, neighbor)
+                queue.append(neighbor)
+    return subgraph
 
 
 def print_and_log(network_name, metric_name, metric_value):
