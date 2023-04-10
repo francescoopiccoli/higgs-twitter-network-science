@@ -45,6 +45,7 @@ def get_subgraph(G, k=None, is_seed_node_most_connected=True):
     if is_seed_node_most_connected:
         seed_node = max(G.degree(), key=lambda x: x[1])[0]
     else:
+        # Choosing a random node does not guarantee getting a subgraph of the desired size
         seed_node = random.choice(list(G.nodes()))
     # Initialize a queue for BFS and a set for visited nodes
     queue = [seed_node]
