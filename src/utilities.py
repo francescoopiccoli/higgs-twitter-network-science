@@ -81,3 +81,13 @@ def print_and_log(network_name, metric_name, metric_value):
 
         writer.writerow([metric_name, metric_value])
     os.chdir(current_dir)
+
+# example of use: util.get_average_information_spreading_from_log("../log/mention.csv", "top3_out_degree_infected_nodes_time")
+def get_average_information_spreading_from_log(log_file_path, metric):
+    df = pd.read_csv(log_file_path, usecols=['metric', 'value'])
+    # read desired value
+    value = df[df["metric"] == metric].iloc[0]['value']
+    # convert from string to numpy array
+    value = np.array(eval(value))
+    # Take the average of the n iterations passed as input
+    return np.mean(value, axis=0)
