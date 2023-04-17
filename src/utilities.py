@@ -5,6 +5,7 @@ import sys
 import random
 import csv
 import os
+import matplotlib.pyplot as plt
 
 sys.path.append('../')
 print(sys.path)
@@ -91,3 +92,20 @@ def get_average_information_spreading_from_log(log_file_path, metric):
     value = np.array(eval(value))
     # Take the average of the n iterations passed as input
     return np.mean(value, axis=0)
+
+# example of use: util.plot_all_graph_metrics("../log/mention.csv", 0, 167, graph_name="Mention")
+def plot_all_graph_metrics(log_file_path,  min_val, max_val, graph_name='No_name_given'):
+    x_range = np.arange(min_val, max_val+2)
+    infected_nodes_time = get_average_information_spreading_from_log(log_file_path, "top3_out_degree_infected_nodes_time")
+    infected_social_nodes_time = get_average_information_spreading_from_log(log_file_path, "top3_out_degree_informed_nodes_time")
+    infected_nodes_time_eigen = get_average_information_spreading_from_log(log_file_path, "top3_eigen_infected_nodes_time")
+    infected_social_nodes_time_eigen = get_average_information_spreading_from_log(log_file_path, "top3_eigen_informed_nodes_time")
+
+    plt.plot(x_range, infected_nodes_time, label= graph_name + " OutDegree" + ' infected nodes', alpha=0.8)
+    plt.plot(x_range, infected_social_nodes_time, label= graph_name + " OutDegree" + ' informed nodes', alpha=0.8)
+    plt.plot(x_range, infected_nodes_time_eigen, label= graph_name + " Eigen" + ' infected nodes', alpha=0.8)
+    plt.plot(x_range, infected_social_nodes_time_eigen, label=graph_name + " Eigen" + ' informed nodes', alpha=0.8)
+    plt.title("Metrics comparison for " + graph_name + " network")
+    plt.xlabel('Time (each time unit ≈ ' + str((24*7*60) // len(x_range)) + " minutes)")
+    plt.ylabel('Ratio of nodes over all graph nodes')
+    plt.legend()
