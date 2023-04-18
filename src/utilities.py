@@ -93,30 +93,27 @@ def get_average_information_spreading_from_log(log_file_path, metric):
     # Take the average of the n iterations passed as input
     return np.mean(value, axis=0), value
 
+
+BASE_KEYWORDS=["top3_out_degree", "top3_eigen", "baseline", "top3_followers"]
+
+def get_metric_name_from_keyword(keyword):
+    return keyword + '_informed_nodes_time'
+
+def get_color(colors, kw):
+    return colors[kw.replace('top3_', '')]
+
 # example of use: util.plot_all_graph_metrics("../log/mention.csv", 0, 167, graph_name="Mention")
-def plot_all_graph_metrics(log_file_path,  min_val, max_val, graph_name='No_name_given', color = {'baseline' : 'black', 'eigen' : 'g', 'out_degree' : 'r', 'followers' : 'orange'}):
+def plot_all_graph_metrics(ax, log_file_path,  keywords = BASE_KEYWORDS, min_val = 0, max_val = 167, graph_name='No_name_given', colors = {'baseline' : 'black', 'eigen' : 'g', 'out_degree' : 'r', 'followers' : 'orange'}):
     x_range = np.arange(min_val, max_val+2)
-    out_degree_mean, out_degree  = get_average_information_spreading_from_log(log_file_path, "top3_out_degree_informed_nodes_time")
-    eigen_mean, eigen = get_average_information_spreading_from_log(log_file_path, "top3_eigen_informed_nodes_time")
-    baseline_mean, baseline = get_average_information_spreading_from_log(log_file_path, "baseline_informed_nodes_time")
-    followers_mean, followers = get_average_information_spreading_from_log(log_file_path, "top3_followers_informed_nodes_time")
-    plt.plot(x_range, out_degree_mean, label= "OutDegree" + ' informed nodes', alpha=0.8, c=color['out_degree'])
-    plt.plot(x_range, eigen_mean, label="Eigen" + ' informed nodes', alpha=0.8, c=  color['eigen'])
-    plt.plot(x_range, baseline_mean, label="Baseline" + ' informed nodes', alpha=0.8,c=  color['baseline'])
-    plt.plot(x_range, followers_mean, label="Followers" + ' informed nodes', alpha=0.8,c=  color['followers'])
-
-
-    for l in baseline:
-        plt.plot(l, alpha =.1, color= color['baseline'])
-    for l in eigen:
-        plt.plot(l, alpha =.1, color= color['eigen'])
-    for l in out_degree:
-        plt.plot(l, alpha =.1, color= color['out_degree'])
-    for l in followers:
-        plt.plot(l, alpha =.1, color= color['followers'])
     
+    for kw in keywords:
 
-    plt.title("Starting Node comparison for " + graph_name + " network")
-    plt.xlabel('Time (each time unit ≈ 60 minutes)')
-    plt.ylabel('Ratio of nodes over all graph nodes')
-    plt.legend(loc='upper left')
+        mean, val = get_average_information_spreading_from_log(log_file_path, get_metric_name_from_keyword(kw))
+        ax.plot(x_range, mean, label=kw, alpha=0.8, c=get_color(colors, kw))
+        for l in val:
+            ax.plot(l, alpha =.1, color= get_color(colors, kw))
+
+    ax.set_title(graph_name)
+    ax.set_xlabel('Time (each time unit ≈ 60 minutes)')
+    ax.set_ylabel('Ratio of nodes over all graph nodes')
+    ax.legend()
