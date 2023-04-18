@@ -91,21 +91,32 @@ def get_average_information_spreading_from_log(log_file_path, metric):
     # convert from string to numpy array
     value = np.array(eval(value))
     # Take the average of the n iterations passed as input
-    return np.mean(value, axis=0)
+    return np.mean(value, axis=0), value
 
 # example of use: util.plot_all_graph_metrics("../log/mention.csv", 0, 167, graph_name="Mention")
-def plot_all_graph_metrics(log_file_path,  min_val, max_val, graph_name='No_name_given'):
+def plot_all_graph_metrics(log_file_path,  min_val, max_val, graph_name='No_name_given', color = {'baseline' : 'black', 'eigen' : 'g', 'out_degree' : 'r', 'followers' : 'orange'}):
     x_range = np.arange(min_val, max_val+2)
-    infected_nodes_time = get_average_information_spreading_from_log(log_file_path, "top3_out_degree_infected_nodes_time")
-    infected_social_nodes_time = get_average_information_spreading_from_log(log_file_path, "top3_out_degree_informed_nodes_time")
-    infected_nodes_time_eigen = get_average_information_spreading_from_log(log_file_path, "top3_eigen_infected_nodes_time")
-    infected_social_nodes_time_eigen = get_average_information_spreading_from_log(log_file_path, "top3_eigen_informed_nodes_time")
+    out_degree_mean, out_degree  = get_average_information_spreading_from_log(log_file_path, "top3_out_degree_informed_nodes_time")
+    eigen_mean, eigen = get_average_information_spreading_from_log(log_file_path, "top3_eigen_informed_nodes_time")
+    baseline_mean, baseline = get_average_information_spreading_from_log(log_file_path, "baseline_informed_nodes_time")
+    followers_mean, followers = get_average_information_spreading_from_log(log_file_path, "top3_followers_informed_nodes_time")
+    plt.plot(x_range, out_degree_mean, label= graph_name + " OutDegree" + ' informed nodes', alpha=0.8, c=color['out_degree'])
+    plt.plot(x_range, eigen_mean, label=graph_name + " Eigen" + ' informed nodes', alpha=0.8, c=  color['eigen'])
+    plt.plot(x_range, baseline_mean, label=graph_name + " baseline" + ' informed nodes', alpha=0.8,c=  color['baseline'])
+    plt.plot(x_range, followers_mean, label=graph_name + " followers" + ' informed nodes', alpha=0.8,c=  color['followers'])
 
-    plt.plot(x_range, infected_nodes_time, label= graph_name + " OutDegree" + ' infected nodes', alpha=0.8)
-    plt.plot(x_range, infected_social_nodes_time, label= graph_name + " OutDegree" + ' informed nodes', alpha=0.8)
-    plt.plot(x_range, infected_nodes_time_eigen, label= graph_name + " Eigen" + ' infected nodes', alpha=0.8)
-    plt.plot(x_range, infected_social_nodes_time_eigen, label=graph_name + " Eigen" + ' informed nodes', alpha=0.8)
-    plt.title("Metrics comparison for " + graph_name + " network")
+
+    for l in baseline:
+        plt.plot(l, alpha =.1, color= color['baseline'])
+    for l in eigen:
+        plt.plot(l, alpha =.1, color= color['eigen'])
+    for l in out_degree:
+        plt.plot(l, alpha =.1, color= color['out_degree'])
+    for l in out_degree:
+        plt.plot(l, alpha =.1, color= color['followers'])
+    
+
+    plt.title("Starting Node comparison for " + graph_name + " network")
     plt.xlabel('Time (each time unit ≈ ' + str((24*7*60) // len(x_range)) + " minutes)")
     plt.ylabel('Ratio of nodes over all graph nodes')
     plt.legend()
