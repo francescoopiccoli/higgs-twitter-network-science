@@ -100,10 +100,10 @@ def plot_all_graph_metrics(log_file_path,  min_val, max_val, graph_name='No_name
     eigen_mean, eigen = get_average_information_spreading_from_log(log_file_path, "top3_eigen_informed_nodes_time")
     baseline_mean, baseline = get_average_information_spreading_from_log(log_file_path, "baseline_informed_nodes_time")
     followers_mean, followers = get_average_information_spreading_from_log(log_file_path, "top3_followers_informed_nodes_time")
-    plt.plot(x_range, out_degree_mean, label= graph_name + " OutDegree" + ' informed nodes', alpha=0.8, c=color['out_degree'])
-    plt.plot(x_range, eigen_mean, label=graph_name + " Eigen" + ' informed nodes', alpha=0.8, c=  color['eigen'])
-    plt.plot(x_range, baseline_mean, label=graph_name + " baseline" + ' informed nodes', alpha=0.8,c=  color['baseline'])
-    plt.plot(x_range, followers_mean, label=graph_name + " followers" + ' informed nodes', alpha=0.8,c=  color['followers'])
+    plt.plot(x_range, out_degree_mean, label= "OutDegree" + ' informed nodes', alpha=0.8, c=color['out_degree'])
+    plt.plot(x_range, eigen_mean, label="Eigen" + ' informed nodes', alpha=0.8, c=  color['eigen'])
+    plt.plot(x_range, baseline_mean, label="Baseline" + ' informed nodes', alpha=0.8,c=  color['baseline'])
+    plt.plot(x_range, followers_mean, label="Followers" + ' informed nodes', alpha=0.8,c=  color['followers'])
 
 
     for l in baseline:
@@ -112,11 +112,11 @@ def plot_all_graph_metrics(log_file_path,  min_val, max_val, graph_name='No_name
         plt.plot(l, alpha =.1, color= color['eigen'])
     for l in out_degree:
         plt.plot(l, alpha =.1, color= color['out_degree'])
-    for l in out_degree:
+    for l in followers:
         plt.plot(l, alpha =.1, color= color['followers'])
     
 
     plt.title("Starting Node comparison for " + graph_name + " network")
-    plt.xlabel('Time (each time unit ≈ ' + str((24*7*60) // len(x_range)) + " minutes)")
+    plt.xlabel('Time (each time unit ≈ 60 minutes)')
     plt.ylabel('Ratio of nodes over all graph nodes')
-    plt.legend()
+    plt.legend(loc='upper left')
