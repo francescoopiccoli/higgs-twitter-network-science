@@ -5,6 +5,7 @@ import sys
 import random
 import csv
 import os
+import matplotlib.pyplot as plt
 
 sys.path.append('../')
 print(sys.path)
@@ -37,7 +38,7 @@ def load_activity_time(path, names=['SourceID', 'TargetID', 'Timestamp', 'Type']
 
 
 # Get a subgraph of n nodes, where each node is connected to at least one node in the subgraph
-def get_subgraph(G, k=None, is_seed_node_most_connected=False):
+def get_subgraph(G, k=None, is_seed_node_most_connected=True):
     if k is None:
         k = G.number_of_nodes() // 5
     print('subgraph of: ' + str(k) + ' nodes')
@@ -45,6 +46,7 @@ def get_subgraph(G, k=None, is_seed_node_most_connected=False):
     if is_seed_node_most_connected:
         seed_node = max(G.degree(), key=lambda x: x[1])[0]
     else:
+        # Choosing a random node does not guarantee getting a subgraph of the desired size
         seed_node = random.choice(list(G.nodes()))
     # Initialize a queue for BFS and a set for visited nodes
     queue = [seed_node]
@@ -63,7 +65,7 @@ def get_subgraph(G, k=None, is_seed_node_most_connected=False):
                     break
                 visited.add(neighbor)
                 subgraph.add_node(neighbor)
-                subgraph.add_edge(curr_node, neighbor)
+                subgraph.add_edge(curr_node, neighbor, day=G[curr_node][neighbor]["day"])
                 queue.append(neighbor)
     return subgraph
 
@@ -80,3 +82,38 @@ def print_and_log(network_name, metric_name, metric_value):
 
         writer.writerow([metric_name, metric_value])
     os.chdir(current_dir)
+
+# example of use: util.get_average_information_spreading_from_log("../log/mention.csv", "top3_out_degree_infected_nodes_time")
+def get_average_information_spreading_from_log(log_file_path, metric):
+    df = pd.read_csv(log_file_path, usecols=['metric', 'value'])
+    # read desired value
+    value = df[df["metric"] == metric].iloc[0]['value']
+    # convert from string to numpy array
+    value = np.array(eval(value))
+    # Take the average of the n iterations passed as input
+    return np.mean(value, axis=0), value
+
+
+BASE_KEYWORDS=["top3_out_degree", "top3_eigen", "baseline", "top3_followers"]
+
+def get_metric_name_from_keyword(keyword):
+    return keyword + '_informed_nodes_time'
+
+def get_color(colors, kw):
+    return colors[kw.replace('top3_', '')]
+
+# example of use: util.plot_all_graph_metrics("../log/mention.csv", 0, 167, graph_name="Mention")
+def plot_all_graph_metrics(ax, log_file_path,  keywords = BASE_KEYWORDS, min_val = 0, max_val = 167, graph_name='No_name_given', colors = {'baseline' : 'black', 'eigen' : 'g', 'out_degree' : 'r', 'followers' : 'orange'}):
+    x_range = np.arange(min_val, max_val+2)
+    
+    for kw in keywords:
+
+        mean, val = get_average_information_spreading_from_log(log_file_path, get_metric_name_from_keyword(kw))
+        ax.plot(x_range, mean, label=kw, alpha=0.8, c=get_color(colors, kw))
+        for l in val:
+            ax.plot(l, alpha =.1, color= get_color(colors, kw))
+
+    ax.set_title(graph_name)
+    ax.set_xlabel('Time (each time unit ≈ 60 minutes)')
+    ax.set_ylabel('Ratio of nodes over all graph nodes')
+    ax.legend()
